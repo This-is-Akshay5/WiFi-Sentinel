@@ -1,0 +1,15 @@
+.venv/
+.venv-macos-*/
+__pycache__/
+*.pyc
+data/wifisentinel.db
+data/wifisentinel.db-*
+data/captures/
+data/authorization_documents/
+reports/*
+logs/
+.env
+.env.*
+!.env.example
+.envrc
+*.env

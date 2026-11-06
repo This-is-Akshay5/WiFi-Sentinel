@@ -1,0 +1,6 @@
+pywebview>=6.0
+reportlab>=4.0
+python-dotenv>=1.0
+pyobjc-framework-CoreWLAN>=11; sys_platform == "darwin"
+scapy>=2.6,<3
+pyobjc-framework-CoreLocation>=11; sys_platform == 'darwin'
