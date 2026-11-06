@@ -1,15 +1,63 @@
+# Python virtual environments
 .venv/
-.venv-macos-*/
+.venv-*/
+venv/
+env/
+
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Build and packaging
+build/
+dist/
+*.spec.bak
+*.egg-info/
+.eggs/
+wheels/
+pip-wheel-metadata/
+
+# Local databases
 data/wifisentinel.db
 data/wifisentinel.db-*
+*.sqlite
+*.sqlite3
+
+# Local application data
 data/captures/
 data/authorization_documents/
+
+# Reports and logs
 reports/*
 logs/
+
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
 .envrc
 *.env
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows system files
+Thumbs.db
+Desktop.ini
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
