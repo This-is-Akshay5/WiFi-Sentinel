@@ -1,55 +1,257 @@
 # WiFiSentinel
 
-WiFiSentinel is a local Python/PyWebView desktop application for evidence-based wireless and network security assessment. It uses the host operating system's Wi-Fi and neighbor APIs, a local SQLite database, and optional locally installed security tools. Kali and remote connector services are not part of the active architecture.
+WiFiSentinel is a desktop application for wireless and network security assessment. Built with Python and PyWebView, it brings network discovery, security checks, device observations, evidence analysis and reporting into one place.
 
-## Current capabilities
+It uses native operating system APIs, locally installed security tools and an SQLite database. Kali Linux and remote connector services are not part of the current architecture.
 
-- Native Wi-Fi discovery through macOS CoreWLAN/system utilities or Windows WLAN APIs, with source labels, timestamps, and explicit permission/error states.
-- Assessments with explicit authorization, network/wireless scope, a versioned engagement manifest, permitted test IDs, timezone-aware dates, optional testing windows and exclusions. Active network checks are blocked unless policy and target-scope gates pass. Scope documents and full site/controller verification remain in development.
-- Selected finding retests rerun the original supported catalog check only when the saved scope matches the current assessment scope. Outcomes are stored with new evidence as fixed, partial, unresolved, or unable to verify; unsupported/legacy finding sources are not reported as fixed.
-- A LAN Inventory page that presents OS neighbor-cache rows and explicitly authorized, bounded ICMP responders as separate observations, with source history and search. It does not claim complete client discovery or merge identities.
-- Device Intelligence and Approved Access Point Inventory pages preserve source-specific records and compare exact observed BSSIDs within declared wireless scope. Review items are not labelled confirmed rogue APs.
-- Authorization documents can be attached to an assessment as bounded local copies with SHA-256 provenance and audited removal; document content is not included in reports.
-- Offline PCAP/PCAPNG import and bounded analysis with SHA-256 evidence persistence.
-- Passive deauthentication/disassociation and PMF evidence review, plus a clearly labelled software-only lab simulator. No forged management frames are transmitted.
-- Connected-network Wi-Fi audit, findings, evidence, deterministic posture, AI-assisted evidence explanation, and reports.
-- Read-only static source review for selected local source/configuration files, with size limits, deterministic review indicators, evidence persistence, and no code execution or secret-value output.
-- Read-only repository-root review with generated/dependency and common secret-file exclusions, local dependency-manifest inventory, and explicit size limits. It does not execute code or consult an advisory database.
-- A read-only web surface snapshot for an authorized URL: one bounded GET, same-origin redirect checks, pinned DNS resolution, header/cookie/form/link metadata, and persisted evidence. It does not submit forms or claim to be a full vulnerability scanner.
-- A bounded same-origin Web Crawl that records only observed route/status/content-type metadata and rule indicators from up to 20 pages. It does not use authentication, query strings, JavaScript, or state-changing requests.
-- Evidence Correlation displays direct persisted finding-to-evidence references and theoretical same-asset candidates. It does not generate ordered exploit paths.
-- Awareness Training hosts one fixed synthetic exercise at `127.0.0.1`; it records only visit, click, and yes/no synthetic-choice events. It does not send email or LAN announcements, collect credentials, or host on a LAN interface.
-- LAN Messaging works only with a compatible, explicitly enrolled `receiver_client.py`. Remote endpoints require private-LAN HTTPS with a pinned certificate and scoped HMAC token. A signed acknowledgement means accepted by that receiver, not displayed as a system pop-up or read by a person.
-- Local executable detection for Nmap, TShark, tcpdump, Aircrack-ng, hcxtools, Bettercap, and Wireshark. Detection is distinct from execution: Nmap is wired to the assessment catalog; the other listed tools are not invoked unless a specific workflow says so.
+## Features
 
-## Run from source
+### Wireless Discovery and Security
 
-Use Python 3.12 and install dependencies from `requirements.txt`. On macOS, run `./run_simulator.command`; on Windows, run `run_simulator.bat`. The UI uses the native OS APIs and may require macOS Location Services permission to reveal Wi-Fi identifiers. If permission is denied, the application keeps the state visible and does not invent scan results.
+WiFiSentinel discovers nearby wireless networks through macOS CoreWLAN and system utilities or the Windows WLAN API. It displays available information such as SSID, BSSID, channel, frequency, signal strength and security configuration.
 
-The macOS packaged app keeps its database, captures, reports, logs, and local `.env` under `~/Library/Application Support/WiFiSentinel`. Source-run development uses the project directory. Preserve those data files when upgrading.
+Each observation includes its source and timestamp. When the operating system blocks access to wireless information, the application reports the permission or capability issue instead of displaying invented results.
 
-## Hardware and permissions
+The WiFi Security Audit examines the connected network, evaluates available security settings and produces findings with supporting evidence. It also maintains audit history and provides deterministic security posture results, with optional AI explanations.
 
-Ordinary software-based Wi-Fi scans can discover networks exposed by the OS and require a supported built-in or external Wi-Fi adapter. A separate adapter is **not** required for offline PCAP review, local neighbor-cache inspection, Nmap scans over an authorized IP scope, or software-only simulation. WiFiSentinel does not currently implement live monitor-mode capture or frame injection; installing packet tools does not prove radio capability. A compatible adapter and driver may be required for future monitor-mode work, but are not sufficient by themselves.
+### Assessments and Authorization
 
-## Local configuration
+Assessments define what can be tested and under which conditions.
 
-Copy `.env.example` to `.env` if needed. Keep API keys and `.env` out of source control. `OPENAI_API_KEY` is optional; it is used only for AI explanations of persisted evidence. `OPENAI_MODEL` optionally selects a model. `WIFISENTINEL_MAX_CAPTURE_MB` changes the bounded offline capture size limit.
+Each assessment can include its target, tester, environment, network scope, wireless scope, permitted test IDs, authorization period and exclusions. A versioned engagement manifest records the assessment configuration.
 
-## Compatible LAN receiver
+Active network checks are blocked unless the authorization policy and target scope requirements are satisfied.
 
-The optional standard-library receiver can run on a Mac or Windows computer where Python is available. Generate a random token of at least 32 bytes, set it as `WIFISENTINEL_RECEIVER_TOKEN` in that process environment, and use a TLS certificate/private key for a private interface. For example:
+Authorization documents can be attached as local copies. WiFiSentinel records their SHA 256 hashes and removal history. Document contents are not included in exported reports.
 
-```sh
+Scope documents and complete site or controller verification are still under development.
+
+### LAN Inventory and Device Intelligence
+
+LAN Inventory displays devices observed through the operating system's neighbor cache and explicitly authorized, bounded ICMP discovery.
+
+These observations remain separate, with their source and history preserved. WiFiSentinel does not claim to discover every device connected to a network or merge different observations into a single device without sufficient evidence.
+
+Device Intelligence maintains source specific device records. Approved Access Point Inventory compares observed BSSIDs against an approved list within the assessment's declared wireless scope.
+
+Unlisted access points are marked for review. They are not automatically classified as confirmed rogue access points.
+
+Router and DHCP integration, mDNS discovery and more advanced device identification remain under development.
+
+### Network Assessment
+
+WiFiSentinel supports authorized network checks through its assessment engine. Nmap is integrated into the assessment catalog for host and service assessment.
+
+Reachability checks use bounded TCP connection attempts against permitted targets. Results are stored with their execution history and supporting evidence.
+
+Network segmentation analysis is currently limited. Complete network topology discovery and testing from multiple network segments are not yet available.
+
+### Packet Capture Analysis
+
+WiFiSentinel supports offline PCAP and PCAPNG imports with bounded analysis.
+
+Capture files are validated, hashed using SHA 256 and stored with their analysis results. Supported checks examine packet metadata, wireless management events, deauthentication and disassociation activity, PMF observations, EAPOL and SAE events, and in scope DNS queries.
+
+The application also includes a software only lab simulator for demonstrating wireless assessment concepts.
+
+It does not currently perform live monitor mode capture or transmit forged wireless management frames.
+
+### Source Code and Repository Review
+
+Source Review examines selected local source and configuration files using read only static analysis.
+
+Repository Review scans a selected project directory, applies common exclusions for generated files and dependencies, and inventories supported dependency manifests.
+
+Both workflows use file size limits and deterministic security checks. Source code is never executed, and detected secret values are not displayed or included in findings.
+
+Dependency versions are inventoried, but the current implementation does not consult a vulnerability advisory database.
+
+### Web Application Analysis
+
+Web Snapshot performs a bounded GET request against an authorized URL. It examines response headers, cookies, forms, links and other available page metadata. Redirects are checked against the permitted origin, and DNS resolution is validated before the request is made.
+
+Web Crawl follows same origin links and examines up to 20 pages. It records observed routes, response status codes, content types and supported security indicators.
+
+These workflows are read only. They do not submit forms, use authenticated sessions, execute JavaScript or perform state changing requests. They should not be treated as a complete web vulnerability scanner.
+
+### Evidence Correlation
+
+Evidence Correlation displays persisted findings and their direct evidence references. It also identifies theoretical relationships between findings that share an explicitly recorded asset.
+
+These relationships help with investigation, but the current implementation does not generate ordered exploit chains or verify that one weakness can be used to reach another.
+
+### Awareness Training
+
+The Awareness Training module hosts a fixed synthetic exercise on the local machine at `127.0.0.1`.
+
+It records page visits, clicks and synthetic yes or no choices. It does not collect passwords, send emails or distribute LAN announcements. Hosting exercises on a LAN interface and supporting multiple participants remain future work.
+
+### LAN Messaging
+
+LAN Messaging supports explicitly enrolled devices running the compatible `receiver_client.py` program.
+
+Messages use scoped HMAC authentication, expiry checks and signed acknowledgements. Remote receivers require private LAN HTTPS with a pinned certificate.
+
+An acknowledgement confirms that the receiver accepted the message. It does not mean that an operating system notification appeared or that someone read it.
+
+Devices without the compatible receiver are not supported.
+
+### Reports and Retesting
+
+WiFiSentinel stores assessment findings, evidence and execution history in SQLite. Supported reports can be exported for assessment records.
+
+Selected finding retests rerun the original supported catalog check when the saved scope matches the current assessment. Results are recorded as fixed, partial, unresolved or unable to verify, with new evidence where available.
+
+Unsupported or legacy finding sources are not marked as fixed simply because a retest was attempted.
+
+### AI Assistance
+
+AI assistance is optional and uses the OpenAI API.
+
+It is intended to explain persisted evidence and assessment findings. It does not perform the underlying scans or independently establish that a vulnerability exists.
+
+The application uses deterministic checks for its implemented security analysis. It does not currently include a trained machine learning model for intrusion detection.
+
+### Tool Detection
+
+WiFiSentinel checks whether supported local security tools are installed, including:
+
+• Nmap  
+• TShark  
+• tcpdump  
+• Aircrack ng  
+• hcxtools  
+• Bettercap  
+• Wireshark  
+
+Tool availability is separate from actual integration. Nmap is connected to the assessment catalog. The other tools are not automatically executed simply because they are installed.
+
+## Technology Stack
+
+| Component | Technology |
+|---|---|
+| Application backend | Python |
+| Desktop framework | PyWebView |
+| User interface | HTML, CSS and JavaScript |
+| Database | SQLite |
+| macOS wireless integration | CoreWLAN and system utilities |
+| Windows wireless integration | Windows WLAN APIs |
+| Network assessment | Nmap |
+| Packet analysis | Scapy |
+| Optional AI | OpenAI API |
+| Report generation | PDF, CSV and JSON export |
+| macOS packaging | PyInstaller |
+
+## Running the Application
+
+WiFiSentinel requires Python 3.12 and the dependencies listed in `requirements.txt`.
+
+On macOS, run:
+
+```bash
+./run_simulator.command
+```
+
+On Windows, run:
+
+```bat
+run_simulator.bat
+```
+
+The application uses native operating system APIs. On macOS, Location Services permission may be required to retrieve wireless identifiers.
+
+If permission is denied or a capability is unavailable, WiFiSentinel displays the relevant state rather than generating substitute data.
+
+## Data Storage
+
+When running as a packaged macOS application, WiFiSentinel stores its database, captures, reports, logs and local `.env` file under:
+
+```text
+~/Library/Application Support/WiFiSentinel
+```
+
+When running from source, development data is stored in the project directory.
+
+Preserve the existing database, configuration and Application Support files when upgrading the application.
+
+## Configuration
+
+Copy `.env.example` to `.env` when configuration is required.
+
+The following settings are supported:
+
+| Variable | Purpose |
+|---|---|
+| `OPENAI_API_KEY` | Optional API key for AI explanations |
+| `OPENAI_MODEL` | Optional model selection |
+| `WIFISENTINEL_MAX_CAPTURE_MB` | Maximum permitted offline capture size |
+
+Keep `.env` and all API keys out of source control.
+
+## Compatible LAN Receiver
+
+The optional receiver can run on a Mac or Windows computer with Python installed.
+
+Generate a random token containing at least 32 bytes and set it in the receiver process environment as `WIFISENTINEL_RECEIVER_TOKEN`. Configure a TLS certificate and private key for the receiver's private network interface.
+
+Example:
+
+```bash
 python receiver_client.py --receiver-id lab-laptop --bind 192.168.1.20 --port 8765 --cert receiver.crt --key receiver.key
 ```
 
-Use the receiver's actual private IP. The receiver prints its certificate SHA-256 fingerprint for pinning in the **LAN Messaging** page. WiFiSentinel keeps the shared token in memory only; re-enroll after restarting the desktop app. The receiver accepts short-lived signed announcements and returns an HMAC-signed acknowledgement. It does not send operating-system notifications or claim a person read the message. Unknown devices and hosts without the receiver client are unsupported.
+Replace the example address with the receiver's actual private IP address.
 
-## Tests
+The receiver displays its certificate SHA 256 fingerprint. Enter this fingerprint in the LAN Messaging page when enrolling the device.
 
-Run the suite with `python3 -m pytest`. Automated adapter tests use fixtures; they do not establish physical Windows hardware behavior or a permission-enabled macOS radio result. Localhost-server tests are kept when they test a supported feature, and environment restrictions must be reported rather than hidden.
+The desktop application keeps the shared token in memory. Receivers must be enrolled again after the desktop application restarts.
 
-## Limitations
+## Hardware and Permissions
 
-The larger roadmap is still incomplete. Open work includes router/DHCP and mDNS device intelligence, live traffic capture and flow summaries, broader authenticated/runtime web analysis, verified ordered attack paths and optional AI explanation, LAN-hosted or multi-user awareness workflows, persistent receiver credential management and cross-host receiver testing, full finding normalization/attestation/retesting for non-catalog sources, and Windows physical-hardware/package validation. See `docs/platform-reconstruction-progress.md` for the current implementation ledger.
+Normal WiFi discovery uses the wireless information exposed by the operating system. A supported built in or external WiFi adapter is required.
+
+A separate adapter is not needed for offline packet capture analysis, local neighbor cache inspection, authorized Nmap scans or software only simulations.
+
+Live monitor mode capture and wireless frame injection are not currently implemented. Installing packet analysis tools does not guarantee that the computer's wireless hardware supports these capabilities.
+
+Future monitor mode functionality may require a compatible adapter and drivers. Hardware compatibility and operating system support must be verified separately.
+
+## Testing
+
+Run the Python test suite with:
+
+```bash
+python3 -m pytest
+```
+
+The automated adapter tests use fixtures. They do not prove that physical Windows hardware works or that macOS wireless permissions allow a live scan.
+
+Localhost tests are retained when they cover supported application features. If the execution environment blocks a test, the restriction should be reported rather than hidden.
+
+## Current Limitations and Development Work
+
+WiFiSentinel is still under active development. The following areas need further implementation and verification:
+
+• Router and DHCP integration, mDNS discovery and deeper device intelligence.
+
+• Live traffic capture, flow summaries and broader network segmentation testing.
+
+• Authenticated web application analysis and more extensive runtime security checks.
+
+• Ordered, evidence linked attack paths with verified transitions and optional AI explanations.
+
+• LAN hosted and multi user awareness training.
+
+• Persistent receiver credential management and cross host messaging verification.
+
+• Complete finding normalization, reporting, retesting and assessment attestation across all modules.
+
+• Physical Windows hardware testing and packaged application verification.
+
+The implementation status and development history are maintained in:
+
+```text
+docs/platform-reconstruction-progress.md
+```
+
+WiFiSentinel is designed to make authorized wireless and network assessments easier to conduct, investigate and document, while keeping findings tied to the evidence actually collected.
